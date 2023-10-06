@@ -77,3 +77,54 @@ resource "google_project_service" "storage-api" {
   service = "storage-api.googleapis.com"
   project = var.project_id
 }
+
+resource "google_container_registry" "backend_images" {
+}
+
+resource "google_storage_bucket" "angular_abc_jobs_miso_app" {
+  name = "${var.bucket_web_name}"
+  location = "${var.region}"
+}
+
+resource "google_compute_backend_bucket" "angular_abc_jobs_miso_app_cdn" {
+  bucket_name = "${var.bucket_web_name}"
+  name = "${var.bucket_web_name}-cdn"
+  enable_cdn = true
+}
+
+resource "google_dns_managed_zone" "angular_abc_jobs_miso_app_dns" {
+  name = "angular-abc-jobs-miso-app-cdn"
+  dns_name = var.domain_name
+}
+
+data "google_compute_global_forwarding_rule" "angular_abc_jobs_miso_app_cdn" {
+  name = google_compute_backend_bucket.angular_abc_jobs_miso_app_cdn.name
+}
+
+
+resource "google_dns_managed_zone" "us_central1_a" {
+  name = "${var.availability_zone_names[0]}"
+  dns_name = var.domain_name
+}
+
+resource "google_dns_managed_zone" "us_central1_b" {
+  name = "${var.availability_zone_names[1]}"
+  dns_name = var.domain_name
+}
+
+
+resource "google_dns_record_set" "angular_abc_jobs_miso_app_cdn_record" {
+  name = "frontend.a.${google_dns_managed_zone.angular_abc_jobs_miso_app_dns.dns_name}"
+  type = "A"
+  ttl = 300
+  rrdatas = [coalesce(data.google_compute_global_forwarding_rule.angular_abc_jobs_miso_app_cdn.ip_address, "192.168.1.1")]
+  managed_zone = google_dns_managed_zone.angular_abc_jobs_miso_app_dns.name
+}
+
+
+resource "google_dns_record_set" "angular_abc_jobs_miso_app_cdn_record_b" {
+  name = "frontend.b.${google_dns_managed_zone.angular_abc_jobs_miso_app_dns.dns_name}"
+  type = "A"
+  rrdatas = [coalesce(data.google_compute_global_forwarding_rule.angular_abc_jobs_miso_app_cdn.ip_address, "192.168.1.1")]
+  managed_zone = google_dns_managed_zone.angular_abc_jobs_miso_app_dns.name
+}

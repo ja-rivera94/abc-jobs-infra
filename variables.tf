@@ -27,3 +27,13 @@ variable "load_balancer_name" {
   default = "a7f08b9fbb34c40dcb80f5a0a589cec7"
   description = "Ingress load balancer"
 }
+
+variable "domain_name" {
+  default = "abc-jobs-miso-uniandes.com."
+  description = "CDN domain"
+}
+
+variable "bucket_web_name" {
+  default = "abc-jobs-miso-uniandes-g14"
+  description = "Ingress load balancer"
+}

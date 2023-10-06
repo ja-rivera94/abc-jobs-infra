@@ -1,0 +1,15 @@
+.gitignore
+*.tfstate
+*.tfstate.backup
+*.tfvars
+.terraform
+tfplan
+
+
+
+.idea
+*.iws
+*.iml
+*.ipr
+
+*.swp

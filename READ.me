@@ -1,0 +1,71 @@
+gcloud init
+
+
+us-central1
+
+
+export TF_VAR_billing_account=01E632-921CCC-7BF817
+export TF_ADMIN=abc-jobs-miso
+export TF_CREDS=~/.config/gcloud/terraform.json
+
+
+
+
+gcloud organizations list
+
+gcloud beta billing accounts list
+
+
+gcloud beta billing projects link ${TF_ADMIN} \
+--billing-account ${TF_VAR_billing_account}
+
+
+Create the Terraform service account
+Create the service account in the Terraform admin project and download the JSON credentials:
+
+gcloud iam service-accounts create terraform \
+--display-name "Terraform admin account"
+
+gcloud iam service-accounts keys create ${TF_CREDS} \
+--iam-account terraform@${TF_ADMIN}.iam.gserviceaccount.com
+
+
+
+gcloud projects add-iam-policy-binding ${TF_ADMIN} \
+--member serviceAccount:terraform@${TF_ADMIN}.iam.gserviceaccount.com \
+ --role roles/viewer
+
+
+
+ gcloud projects add-iam-policy-binding ${TF_ADMIN} \
+ --member serviceAccount:terraform@${TF_ADMIN}.iam.gserviceaccount.com \
+  --role roles/storage.admin
+
+
+
+
+  gcloud services enable cloudresourcemanager.googleapis.com && \
+  gcloud services enable cloudbilling.googleapis.com && \
+  gcloud services enable iam.googleapis.com && \
+  gcloud services enable compute.googleapis.com && \
+  gcloud services enable sqladmin.googleapis.com && \
+  gcloud services enable container.googleapis.com
+
+
+
+
+  Add organization/folder-level permissions
+  Grant the service account permission to create projects and assign billing accounts
+
+  gcloud organizations add-iam-policy-binding ${TF_VAR_org_id} \
+  --member serviceAccount:terraform@${TF_ADMIN}.iam.gserviceaccount.com \
+  --role roles/resourcemanager.projectCreator
+
+  gcloud organizations add-iam-policy-binding ${TF_VAR_org_id} \
+  --member serviceAccount:terraform@${TF_ADMIN}.iam.gserviceaccount.com \
+  --role roles/billing.user
+
+
+
+
+gsutil mb -p ${TF_ADMIN} -l us-central1 gs://${TF_ADMIN}

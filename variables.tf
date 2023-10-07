@@ -35,5 +35,16 @@ variable "domain_name" {
 
 variable "bucket_web_name" {
   default = "abc-jobs-miso-uniandes-g14"
-  description = "Ingress load balancer"
+  description = "Bucket web content"
 }
+
+variable "spanner_instance_name" {
+  default = "miso-uniandes-g14"
+  description = "Cloud spanner instance name"
+}
+
+variable "spanner_database_name" {
+  default = "business-core"
+  description = "Cloud spanner postgres database"
+}
+
